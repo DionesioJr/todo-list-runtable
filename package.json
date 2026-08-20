@@ -1,0 +1,10 @@
+{
+  "name": "todo-list",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aplicação de lista de tarefas (to-do list) para criar, organizar e acompanhar tarefas do dia a dia.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}
