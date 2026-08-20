@@ -26,12 +26,12 @@ O **Todo List** é um projeto ainda em fase inicial: o repositório existe, mas 
 
 🚧 **Em planejamento.** Ainda não há código-fonte no repositório — apenas este README e as notas em [`docs/tasks/`](docs/tasks/). As próximas decisões necessárias para sair do planejamento são:
 
-1. Definir a stack técnica (linguagem, framework, forma de persistência).
-2. Definir a plataforma-alvo (web, mobile, CLI, desktop).
-3. Detalhar o escopo funcional (lista simples vs. categorias, prazos, prioridades, múltiplos usuários).
-4. Definir a licença do projeto.
+- [ ] Definir a stack técnica (linguagem, framework, forma de persistência).
+- [ ] Definir a plataforma-alvo (web, mobile, CLI, desktop).
+- [ ] Detalhar o escopo funcional (lista simples vs. categorias, prazos, prioridades, múltiplos usuários).
+- [ ] Definir a licença do projeto.
 
-Assim que essas decisões forem tomadas, as seções marcadas como "a definir" abaixo devem ser atualizadas.
+Cada decisão deve ser registrada como um novo arquivo em [`docs/tasks/`](docs/tasks/) (seguindo o padrão dos arquivos já existentes) e referenciada em um Pull Request, para manter o histórico de por que cada escolha foi feita. Assim que uma decisão for tomada, a seção correspondente abaixo (marcada como "a definir") deve ser atualizada e o item acima marcado como concluído.
 
 ## Funcionalidades (planejadas)
 
@@ -76,7 +76,7 @@ Assim que essas decisões forem tomadas, as seções marcadas como "a definir" a
 
 <!-- TODO: atualizar conforme o código-fonte for adicionado -->
 
-> Consulte [`docs/tasks/task-05-melhorar-readme-todo-list.md`](docs/tasks/task-05-melhorar-readme-todo-list.md) para o histórico de decisões sobre este README e as informações ainda pendentes (stack técnica, plataforma-alvo, escopo funcional detalhado, licença).
+> Consulte [`docs/tasks/`](docs/tasks/) para o histórico de decisões sobre este README e as informações ainda pendentes (stack técnica, plataforma-alvo, escopo funcional detalhado, licença).
 
 ## Como contribuir
 
