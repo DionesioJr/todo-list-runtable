@@ -3,6 +3,7 @@
 Aplicação de lista de tarefas (to-do list) para criar, organizar e acompanhar tarefas do dia a dia.
 
 ![status](https://img.shields.io/badge/status-planejamento-yellow)
+![licença](https://img.shields.io/badge/licença-a%20definir-lightgrey)
 ![PRs](https://img.shields.io/badge/PRs-bem--vindas-blue)
 
 ## Índice
@@ -45,48 +46,45 @@ Cada decisão deve ser registrada como um novo arquivo em [`docs/tasks/`](docs/t
 
 ## Tecnologias
 
-<!-- TODO: definir linguagem, framework(s) e forma de persistência (ex.: banco de dados, armazenamento local) -->
-- A definir.
+A definir — depende da stack escolhida (linguagem, framework(s) e forma de persistência). Ver checklist em [Status do projeto](#status-do-projeto).
 
 ## Pré-requisitos
 
-<!-- TODO: depende da stack escolhida (ex.: versão de runtime/linguagem, gerenciador de pacotes) -->
-- A definir.
+A definir — depende da stack escolhida (ex.: versão de runtime/linguagem, gerenciador de pacotes).
 
 ## Instalação
 
 ```bash
-# TODO: comandos de instalação (clone, dependências, etc.) — depende da stack escolhida
+# A definir — comandos de instalação (clone, dependências, etc.) dependem da stack escolhida
 ```
 
 ## Uso
 
 ```bash
-# TODO: comandos para rodar o projeto localmente — depende da stack escolhida
+# A definir — comandos para rodar o projeto localmente dependem da stack escolhida
 ```
 
 ## Estrutura do projeto
 
 ```
 .
-├── README.md              # este arquivo
+├── README.md                                       # este arquivo
 └── docs/
-    └── tasks/              # notas de análise/validação de tasks
+    └── tasks/                                       # histórico de análise/validação das tasks do README
+        ├── task-05-melhorar-readme-todo-list.md
+        ├── task-06-melhorar-readme-todo-list.md
+        └── task-07-melhorar-readme-todo-list.md
 ```
 
-<!-- TODO: atualizar conforme o código-fonte for adicionado -->
-
-> Consulte [`docs/tasks/`](docs/tasks/) para o histórico de decisões sobre este README e as informações ainda pendentes (stack técnica, plataforma-alvo, escopo funcional detalhado, licença).
+Conforme o código-fonte for adicionado, esta seção deve ser atualizada para refletir a organização real do projeto (ex.: pastas `src/`, `tests/`, etc.).
 
 ## Como contribuir
 
 1. Crie uma branch a partir da `main` para sua alteração.
-2. Faça commits pequenos e descritivos.
-3. Abra um Pull Request descrevendo o que foi feito e por quê.
-
-<!-- TODO: detalhar padrão de commits/branches quando definido pelo time -->
+2. Se a alteração envolver uma decisão pendente (stack, escopo, licença etc.), registre o raciocínio em um novo arquivo em [`docs/tasks/`](docs/tasks/), seguindo o padrão dos arquivos existentes.
+3. Faça commits pequenos e descritivos.
+4. Abra um Pull Request descrevendo o que foi feito e por quê, referenciando o arquivo de decisão quando aplicável.
 
 ## Licença
 
-<!-- TODO: definir licença do projeto -->
-A definir.
+A definir. Até que uma licença seja escolhida e adicionada (ex.: arquivo `LICENSE` na raiz), considere o código não licenciado para reuso por terceiros.
