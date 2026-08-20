@@ -70,15 +70,17 @@ A definir — depende da stack escolhida (ex.: versão de runtime/linguagem, ger
 ```
 .
 ├── README.md                                       # este arquivo
+├── src/                                            # todo o código-fonte da aplicação
 └── docs/
     └── tasks/                                       # histórico de análise/validação das tasks do README
+        ├── criar-pasta-src.md
         ├── task-05-melhorar-readme-todo-list.md
         ├── task-06-melhorar-readme-todo-list.md
         ├── task-07-melhorar-readme-todo-list.md
         └── task-08-melhorar-readme-todo-list.md
 ```
 
-Conforme o código-fonte for adicionado, esta seção deve ser atualizada para refletir a organização real do projeto (ex.: pastas `src/`, `tests/`, etc.).
+Todo o código-fonte da aplicação deve ser adicionado dentro de `src/`, separado de arquivos de configuração, documentação e testes. Conforme o projeto crescer, esta seção deve ser atualizada para refletir a organização real (ex.: subpastas de `src/`, pasta `tests/`).
 
 ## Como contribuir
 
