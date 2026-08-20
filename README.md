@@ -47,7 +47,10 @@ Cada decisão deve ser registrada como um novo arquivo em [`docs/tasks/`](docs/t
 
 ## Tecnologias
 
-A definir — depende da stack escolhida (linguagem, framework(s) e forma de persistência). Ver checklist em [Status do projeto](#status-do-projeto).
+- [Node.js](https://nodejs.org/), usando apenas a biblioteca padrão (módulo `http`).
+
+O projeto ainda não tem dependências externas nem framework. A forma de persistência
+segue em aberto, ver o checklist em [Status do projeto](#status-do-projeto).
 
 ## Pré-requisitos
 
