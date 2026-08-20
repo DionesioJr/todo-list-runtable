@@ -32,5 +32,13 @@ listado abaixo entra na primeira versão quando ela for cortada.
 - Pasta `docs/tasks/` com o registro de validação e refinamento de cada task do
   projeto.
 - Este `CHANGELOG.md`, no padrão Keep a Changelog.
+- Modelo mínimo de dados de uma tarefa em `src/models/task.ts`: a interface
+  `Task` (com `id`, `title`, `description`, `createdAt`, `lastModified`,
+  `version` e `completed`), a função `createTask` e os validadores `isTask` e
+  `isIsoDateTime`.
+- TypeScript em modo `strict` (`tsconfig.json`) e Vitest como ferramenta de
+  teste, com os scripts `test`, `test:watch` e `typecheck`.
+- Testes do modelo de tarefa em `tests/models/task.test.ts`.
+- `.gitignore` cobrindo `node_modules/`, `coverage/`, `dist/` e arquivos de log.
 
 [Unreleased]: https://github.com/dionesiojr/todo-list-runtable/commits/main

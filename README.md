@@ -2,8 +2,8 @@
 
 Aplicação de lista de tarefas (to-do list) para criar, organizar e acompanhar tarefas do dia a dia.
 
-![status](https://img.shields.io/badge/status-planejamento-yellow)
-![licença](https://img.shields.io/badge/licença-a%20definir-lightgrey)
+![status](https://img.shields.io/badge/status-em%20desenvolvimento-blue)
+![licença](https://img.shields.io/badge/licença-MIT-green)
 ![PRs](https://img.shields.io/badge/PRs-bem--vindas-blue)
 
 ## Índice
@@ -11,6 +11,7 @@ Aplicação de lista de tarefas (to-do list) para criar, organizar e acompanhar 
 - [Sobre o projeto](#sobre-o-projeto)
 - [Status do projeto](#status-do-projeto)
 - [Funcionalidades (planejadas)](#funcionalidades-planejadas)
+- [Modelo de dados](#modelo-de-dados)
 - [Tecnologias](#tecnologias)
 - [Pré-requisitos](#pré-requisitos)
 - [Instalação](#instalação)
@@ -22,14 +23,15 @@ Aplicação de lista de tarefas (to-do list) para criar, organizar e acompanhar 
 
 ## Sobre o projeto
 
-O **Todo List** é um projeto em fase inicial: já existe um esqueleto executável em Node.js, mas as funcionalidades da lista de tarefas ainda não foram implementadas. Este README documenta o que já se sabe sobre o projeto e sinaliza claramente o que ainda depende de decisões futuras.
+O **Todo List** é um projeto em fase inicial: o modelo de dados de uma tarefa já está definido e testado, e existe um esqueleto executável em Node.js, mas as camadas de interface e persistência ainda não foram escolhidas. Este README documenta o que já está decidido e sinaliza claramente o que ainda depende de decisões futuras.
 
 ## Status do projeto
 
-🚧 **Em construção.** O repositório já sobe um servidor HTTP mínimo (`src/index.js`), mas nenhuma funcionalidade de tarefas foi implementada. As próximas decisões necessárias são:
+🚧 **Em desenvolvimento inicial.** O primeiro código-fonte já está no repositório: o modelo de dados em [`src/models/task.ts`](src/models/task.ts), com testes. As próximas decisões necessárias são:
 
-- [x] Definir a stack técnica: Node.js, sem dependências externas por enquanto. A forma de persistência ainda está em aberto.
-- [ ] Definir a plataforma-alvo (web, mobile, CLI, desktop).
+- [x] Definir a linguagem e a ferramenta de teste: TypeScript e Vitest, ver [`docs/tasks/task-09-modelo-minimo-de-dados.md`](docs/tasks/task-09-modelo-minimo-de-dados.md).
+- [ ] Definir a plataforma-alvo e o framework de interface (web, mobile, CLI, desktop).
+- [ ] Definir a forma de persistência (memória, armazenamento local, banco ou API).
 - [ ] Detalhar o escopo funcional (lista simples vs. categorias, prazos, prioridades, múltiplos usuários).
 - [x] Definir a licença do projeto: MIT, ver [LICENSE](LICENSE).
 
@@ -45,16 +47,41 @@ Cada decisão deve ser registrada como um novo arquivo em [`docs/tasks/`](docs/t
 - Remover tarefas
 - Listar e filtrar tarefas (todas / pendentes / concluídas)
 
+## Modelo de dados
+
+Uma tarefa é representada pela interface `Task` ([`src/models/task.ts`](src/models/task.ts)):
+
+| Campo | Tipo | Regra |
+|---|---|---|
+| `id` | `string` | UUID v4, único e imutável |
+| `title` | `string` | Obrigatório, não vazio |
+| `description` | `string` | Sempre presente; string vazia quando não informada |
+| `createdAt` | `string` | ISO 8601 UTC `YYYY-MM-DDTHH:mm:ss.sssZ`; imutável |
+| `lastModified` | `string` | Mesmo formato; igual a `createdAt` até a primeira alteração |
+| `version` | `number` | Inteiro >= 1; começa em 1 e aumenta 1 a cada alteração |
+| `completed` | `boolean` | `false` na criação |
+
+```ts
+import { createTask } from './src/models/task.js';
+
+const tarefa = createTask({ title: 'Comprar pão', description: 'Antes das 18h' });
+// { id: '…', title: 'Comprar pão', …, version: 1, completed: false }
+```
+
+O modelo é serializável em JSON de propósito, para não travar a escolha futura de persistência.
+
 ## Tecnologias
 
-- [Node.js](https://nodejs.org/), usando apenas a biblioteca padrão (módulo `http`).
+- [Node.js](https://nodejs.org/) 20 ou superior.
+- [TypeScript](https://www.typescriptlang.org/) para o código-fonte, em modo `strict`.
+- [Vitest](https://vitest.dev/) para os testes.
 
-O projeto ainda não tem dependências externas nem framework. A forma de persistência
+Não há framework de interface nem dependências de produção. A forma de persistência
 segue em aberto, ver o checklist em [Status do projeto](#status-do-projeto).
 
 ## Pré-requisitos
 
-- [Node.js](https://nodejs.org/) (inclui o `npm`)
+- [Node.js](https://nodejs.org/) 20 ou superior (inclui o `npm`)
 
 ## Instalação
 
@@ -64,13 +91,16 @@ cd todo-list-runtable
 npm install
 ```
 
-O projeto ainda não tem dependências externas, então `npm install` apenas prepara o
-ambiente.
+Não há dependências de produção. O `npm install` instala apenas as ferramentas de
+desenvolvimento (TypeScript e Vitest).
 
 ## Como rodar localmente
 
 ```bash
-npm start
+npm start        # sobe o servidor HTTP
+npm test         # roda os testes uma vez
+npm run test:watch   # roda os testes em modo observador
+npm run typecheck    # verifica os tipos sem gerar build
 ```
 
 O servidor sobe em <http://localhost:3000>. A porta pode ser trocada pela variável de
@@ -82,15 +112,22 @@ ambiente `PORT`.
 .
 ├── README.md              # este arquivo
 ├── CONTRIBUTING.md        # fluxo de contribuição (branches, commits, PRs)
+├── CHANGELOG.md           # histórico de mudanças
 ├── LICENSE                # licença MIT
 ├── package.json           # metadados e scripts do projeto
+├── tsconfig.json          # configuração do TypeScript
 ├── src/                   # todo o código-fonte da aplicação
-│   └── index.js           # ponto de entrada: servidor HTTP
+│   ├── index.js           # ponto de entrada: servidor HTTP
+│   └── models/            # modelos de dados
+│       └── task.ts        # modelo de uma tarefa
+├── tests/                 # testes, espelhando a estrutura de src/
+│   └── models/
+│       └── task.test.ts
 └── docs/
     └── tasks/             # histórico de análise/validação das tasks
 ```
 
-Todo o código-fonte da aplicação deve ser adicionado dentro de `src/`, separado de arquivos de configuração, documentação e testes. Conforme o projeto crescer, esta seção deve ser atualizada para refletir a organização real (ex.: subpastas de `src/`, pasta `tests/`).
+Todo o código-fonte da aplicação fica dentro de `src/`, separado de arquivos de configuração, documentação e testes. Os testes ficam em `tests/`, espelhando a estrutura de `src/`.
 
 ## Como contribuir
 
