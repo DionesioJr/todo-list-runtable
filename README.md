@@ -2,9 +2,36 @@
 
 Aplicação de lista de tarefas (to-do list) para criar, organizar e acompanhar tarefas do dia a dia.
 
+![status](https://img.shields.io/badge/status-planejamento-yellow)
+![PRs](https://img.shields.io/badge/PRs-bem--vindas-blue)
+
+## Índice
+
+- [Sobre o projeto](#sobre-o-projeto)
+- [Status do projeto](#status-do-projeto)
+- [Funcionalidades (planejadas)](#funcionalidades-planejadas)
+- [Tecnologias](#tecnologias)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Uso](#uso)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Como contribuir](#como-contribuir)
+- [Licença](#licença)
+
 ## Sobre o projeto
 
 O **Todo List** é um projeto ainda em fase inicial: o repositório existe, mas o código-fonte e a stack técnica ainda não foram definidos. Este README documenta o que já se sabe sobre o projeto e sinaliza claramente o que ainda depende de decisões futuras.
+
+## Status do projeto
+
+🚧 **Em planejamento.** Ainda não há código-fonte no repositório — apenas este README e as notas em [`docs/tasks/`](docs/tasks/). As próximas decisões necessárias para sair do planejamento são:
+
+1. Definir a stack técnica (linguagem, framework, forma de persistência).
+2. Definir a plataforma-alvo (web, mobile, CLI, desktop).
+3. Detalhar o escopo funcional (lista simples vs. categorias, prazos, prioridades, múltiplos usuários).
+4. Definir a licença do projeto.
+
+Assim que essas decisões forem tomadas, as seções marcadas como "a definir" abaixo devem ser atualizadas.
 
 ## Funcionalidades (planejadas)
 
