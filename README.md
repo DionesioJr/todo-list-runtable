@@ -18,6 +18,7 @@ Aplicação de lista de tarefas (to-do list) para criar, organizar e acompanhar 
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Como contribuir](#como-contribuir)
 - [Licença](#licença)
+- [Autor](#autor)
 
 ## Sobre o projeto
 
@@ -73,7 +74,8 @@ A definir — depende da stack escolhida (ex.: versão de runtime/linguagem, ger
     └── tasks/                                       # histórico de análise/validação das tasks do README
         ├── task-05-melhorar-readme-todo-list.md
         ├── task-06-melhorar-readme-todo-list.md
-        └── task-07-melhorar-readme-todo-list.md
+        ├── task-07-melhorar-readme-todo-list.md
+        └── task-08-melhorar-readme-todo-list.md
 ```
 
 Conforme o código-fonte for adicionado, esta seção deve ser atualizada para refletir a organização real do projeto (ex.: pastas `src/`, `tests/`, etc.).
@@ -88,3 +90,7 @@ Conforme o código-fonte for adicionado, esta seção deve ser atualizada para r
 ## Licença
 
 A definir. Até que uma licença seja escolhida e adicionada (ex.: arquivo `LICENSE` na raiz), considere o código não licenciado para reuso por terceiros.
+
+## Autor
+
+Mantido por [@dionesiojr](https://github.com/dionesiojr). Dúvidas, sugestões e bugs devem ser abertos como [issues](https://github.com/dionesiojr/todo-list-runtable/issues) neste repositório, para manter o histórico de discussão público e vinculado ao projeto.
