@@ -31,7 +31,7 @@ O **Todo List** é um projeto ainda em fase inicial: o repositório existe, mas 
 - [ ] Definir a stack técnica (linguagem, framework, forma de persistência).
 - [ ] Definir a plataforma-alvo (web, mobile, CLI, desktop).
 - [ ] Detalhar o escopo funcional (lista simples vs. categorias, prazos, prioridades, múltiplos usuários).
-- [ ] Definir a licença do projeto.
+- [x] Definir a licença do projeto: MIT, ver [LICENSE](LICENSE).
 
 Cada decisão deve ser registrada como um novo arquivo em [`docs/tasks/`](docs/tasks/) (seguindo o padrão dos arquivos já existentes) e referenciada em um Pull Request, para manter o histórico de por que cada escolha foi feita. Assim que uma decisão for tomada, a seção correspondente abaixo (marcada como "a definir") deve ser atualizada e o item acima marcado como concluído.
 
@@ -91,7 +91,7 @@ Todo o código-fonte da aplicação deve ser adicionado dentro de `src/`, separa
 
 ## Licença
 
-A definir. Até que uma licença seja escolhida e adicionada (ex.: arquivo `LICENSE` na raiz), considere o código não licenciado para reuso por terceiros.
+Este projeto está licenciado sob a licença MIT. O texto completo está no arquivo [LICENSE](LICENSE) na raiz do repositório.
 
 ## Autor
 
