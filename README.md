@@ -35,7 +35,16 @@
 
 ## Estrutura do projeto
 
-<!-- TODO: descrever pastas/arquivos principais assim que o código existir -->
+```
+.
+├── README.md              # este arquivo
+└── docs/
+    └── tasks/              # notas de análise/validação de tasks
+```
+
+<!-- TODO: atualizar conforme o código-fonte for adicionado -->
+
+> Consulte [`docs/tasks/task-04-criar-readme.md`](docs/tasks/task-04-criar-readme.md) para o histórico de decisões sobre este README e as informações ainda pendentes (nome do projeto, stack técnica, instalação, licença).
 
 ## Como contribuir
 
