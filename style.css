@@ -1,0 +1,81 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f5f5f5;
+  color: #222;
+}
+
+.app {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+#add-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+#new-item-text {
+  flex: 1;
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#add-form button {
+  padding: 8px 16px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+
+#item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#item-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+#item-list li:last-child {
+  border-bottom: none;
+}
+
+#item-list input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+#item-list .item-text {
+  flex: 1;
+}
+
+#item-list li.completed .item-text {
+  text-decoration: line-through;
+  color: #999;
+}
