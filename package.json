@@ -1,0 +1,10 @@
+{
+  "name": "todo-list-runtable",
+  "version": "1.0.0",
+  "description": "To-do list",
+  "type": "module",
+  "main": "src/todoList.js",
+  "scripts": {
+    "test": "node --test"
+  }
+}
