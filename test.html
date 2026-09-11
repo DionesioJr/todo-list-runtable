@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testes - To-Do List</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ddd;
+            padding-left: 15px;
+        }
+        .test-item.pass {
+            border-left-color: #27ae60;
+            background: #ecf8f2;
+        }
+        .test-item.fail {
+            border-left-color: #e74c3c;
+            background: #fdeae9;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .summary {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .summary.all-pass {
+            color: #27ae60;
+        }
+        .summary.some-fail {
+            color: #e74c3c;
+        }
+        .iframe-container {
+            margin-top: 20px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Testes - To-Do List</h1>
+
+        <div class="test-section">
+            <h2>Critério 1: Campo de entrada e botão</h2>
+            <div id="test1" class="test-item"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Critério 2: Rejeitar título vazio</h2>
+            <div id="test2" class="test-item"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Critério 3: Adicionar item válido</h2>
+            <div id="test3" class="test-item"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Critério 4: Campo limpo após adição</h2>
+            <div id="test4" class="test-item"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Critério 5: Persistência (localStorage)</h2>
+            <div id="test5" class="test-item"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Critério 6: Submissão via Enter</h2>
+            <div id="test6" class="test-item"></div>
+        </div>
+
+        <div id="summary" class="summary"></div>
+
+        <div class="test-section">
+            <h2>Aplicação Interativa</h2>
+            <p>Teste abaixo de forma interativa:</p>
+            <div class="iframe-container">
+                <iframe src="index.html"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function runTests() {
+            let results = [];
+
+            try {
+                // Teste 1: Elementos existem
+                const test1Container = document.getElementById('test1');
+                const iframe = document.querySelector('iframe');
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                const todoInput = iframeDoc.getElementById('todoInput');
+                const addBtn = iframeDoc.getElementById('addBtn');
+                const todoList = iframeDoc.getElementById('todoList');
+                const errorMessage = iframeDoc.getElementById('errorMessage');
+
+                if (todoInput && addBtn && todoList && errorMessage) {
+                    test1Container.textContent = '✓ PASS: Todos os elementos necessários estão presentes';
+                    test1Container.classList.add('pass');
+                    results.push(true);
+                } else {
+                    test1Container.textContent = '✗ FAIL: Elementos faltando';
+                    test1Container.classList.add('fail');
+                    results.push(false);
+                }
+
+                // Teste 2: Campo vazio é recusado
+                const test2Container = document.getElementById('test2');
+
+                // Limpar storage
+                iframeDoc.defaultView.localStorage.clear();
+
+                // Tentar adicionar vazio
+                addBtn.click();
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                const hasError = errorMessage.classList.contains('show');
+                const errorText = errorMessage.textContent;
+
+                if (hasError && errorText.includes('Por favor')) {
+                    test2Container.textContent = `✓ PASS: Validação funcionando - "${errorText}"`;
+                    test2Container.classList.add('pass');
+                    results.push(true);
+                } else {
+                    test2Container.textContent = '✗ FAIL: Campo vazio não foi validado';
+                    test2Container.classList.add('fail');
+                    results.push(false);
+                }
+
+                // Teste 3: Adicionar item válido
+                const test3Container = document.getElementById('test3');
+                const testTitle = 'Tarefa de teste ' + Date.now();
+
+                todoInput.value = testTitle;
+                addBtn.click();
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                const items = iframeDoc.querySelectorAll('.todo-item');
+                const hasItem = Array.from(items).some(item => item.textContent.includes(testTitle));
+
+                if (hasItem) {
+                    test3Container.textContent = `✓ PASS: Item adicionado aparecem na lista - "${testTitle}"`;
+                    test3Container.classList.add('pass');
+                    results.push(true);
+                } else {
+                    test3Container.textContent = '✗ FAIL: Item não aparece na lista';
+                    test3Container.classList.add('fail');
+                    results.push(false);
+                }
+
+                // Teste 4: Campo limpo
+                const test4Container = document.getElementById('test4');
+                const inputValue = todoInput.value;
+
+                if (inputValue === '') {
+                    test4Container.textContent = '✓ PASS: Campo foi limpo após adição';
+                    test4Container.classList.add('pass');
+                    results.push(true);
+                } else {
+                    test4Container.textContent = `✗ FAIL: Campo não foi limpo (valor: "${inputValue}")`;
+                    test4Container.classList.add('fail');
+                    results.push(false);
+                }
+
+                // Teste 5: Persistência
+                const test5Container = document.getElementById('test5');
+                const storedTodos = JSON.parse(iframeDoc.defaultView.localStorage.getItem('todos') || '[]');
+
+                if (storedTodos.includes(testTitle)) {
+                    test5Container.textContent = `✓ PASS: Persistência funcionando - localStorage contém o item`;
+                    test5Container.classList.add('pass');
+                    results.push(true);
+                } else {
+                    test5Container.textContent = '✗ FAIL: Item não foi persistido em localStorage';
+                    test5Container.classList.add('fail');
+                    results.push(false);
+                }
+
+                // Teste 6: Enter key
+                const test6Container = document.getElementById('test6');
+                const testTitleEnter = 'Teste via Enter ' + Date.now();
+
+                todoInput.value = testTitleEnter;
+                const enterEvent = new KeyboardEvent('keypress', {
+                    key: 'Enter',
+                    code: 'Enter',
+                    keyCode: 13,
+                    which: 13,
+                    bubbles: true
+                });
+                todoInput.dispatchEvent(enterEvent);
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                const itemsAfterEnter = iframeDoc.querySelectorAll('.todo-item');
+                const hasEnterItem = Array.from(itemsAfterEnter).some(item => item.textContent.includes(testTitleEnter));
+
+                if (hasEnterItem) {
+                    test6Container.textContent = `✓ PASS: Enter key funciona - "${testTitleEnter}"`;
+                    test6Container.classList.add('pass');
+                    results.push(true);
+                } else {
+                    test6Container.textContent = '✗ FAIL: Enter key não funciona';
+                    test6Container.classList.add('fail');
+                    results.push(false);
+                }
+
+                // Summary
+                const summaryDiv = document.getElementById('summary');
+                const passCount = results.filter(r => r).length;
+                const totalCount = results.length;
+
+                if (passCount === totalCount) {
+                    summaryDiv.textContent = `✅ Todos os ${totalCount} testes passaram!`;
+                    summaryDiv.classList.add('all-pass');
+                } else {
+                    summaryDiv.textContent = `⚠️  ${passCount}/${totalCount} testes passaram`;
+                    summaryDiv.classList.add('some-fail');
+                }
+
+            } catch (error) {
+                console.error('Erro ao rodar testes:', error);
+                document.getElementById('summary').textContent = '❌ Erro ao rodar os testes: ' + error.message;
+                document.getElementById('summary').classList.add('some-fail');
+            }
+        }
+
+        // Aguardar iframe carregar
+        window.addEventListener('load', () => {
+            setTimeout(runTests, 1000);
+        });
+    </script>
+</body>
+</html>
