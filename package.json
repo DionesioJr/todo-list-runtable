@@ -1,0 +1,12 @@
+{
+  "name": "todo-list-runtable",
+  "version": "1.0.0",
+  "description": "Uma aplicação simples de lista de tarefas",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8080 -o"
+  },
+  "keywords": ["todo", "list", "tasks"],
+  "author": "Dionesio Guerra",
+  "license": "MIT"
+}
