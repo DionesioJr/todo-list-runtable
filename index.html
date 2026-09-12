@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #todoList {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #ddd;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 12px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .todo-text {
+            flex: 1;
+        }
+
+        li.completed .todo-text {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <h1>To-Do List</h1>
+    <ul id="todoList"></ul>
+
+    <script>
+        const STORAGE_KEY = 'todoList';
+
+        function initializeDefaultData() {
+            const defaultItems = [
+                { id: '1', text: 'Estudar JavaScript', completed: false },
+                { id: '2', text: 'Fazer café', completed: false },
+                { id: '3', text: 'Assistir tutorial', completed: true }
+            ];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultItems));
+            return defaultItems;
+        }
+
+        function getItems() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (!data) {
+                return initializeDefaultData();
+            }
+            return JSON.parse(data);
+        }
+
+        function saveItems(items) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        }
+
+        function render() {
+            const items = getItems();
+            const todoList = document.getElementById('todoList');
+            todoList.innerHTML = '';
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.className = item.completed ? 'completed' : '';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = item.completed;
+                checkbox.addEventListener('change', () => {
+                    item.completed = checkbox.checked;
+                    saveItems(items);
+                    render();
+                });
+
+                const span = document.createElement('span');
+                span.className = 'todo-text';
+                span.textContent = item.text;
+
+                li.appendChild(checkbox);
+                li.appendChild(span);
+                todoList.appendChild(li);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', render);
+    </script>
+</body>
+</html>
