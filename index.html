@@ -145,9 +145,16 @@
         function loadFromStorage() {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
-                todoList = JSON.parse(stored);
-                if (todoList.length > 0) {
-                    nextId = Math.max(...todoList.map(item => item.id)) + 1;
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.every(item => item && typeof item.id === 'number')) {
+                        todoList = parsed;
+                        if (todoList.length > 0) {
+                            nextId = Math.max(...todoList.map(item => item.id)) + 1;
+                        }
+                    }
+                } catch (e) {
+                    todoList = [];
                 }
             }
         }
