@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        #container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 24px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        #titleInput {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        #titleInput:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+        }
+
+        #addBtn {
+            padding: 10px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        #addBtn:hover {
+            background-color: #45a049;
+        }
+
+        #addBtn:active {
+            background-color: #3d8b40;
+        }
+
+        #errorMessage {
+            color: #d32f2f;
+            margin-bottom: 16px;
+            padding: 10px 12px;
+            background-color: #ffebee;
+            border-radius: 4px;
+            font-size: 14px;
+            display: none;
+        }
+
+        #errorMessage.visible {
+            display: block;
+        }
+
+        #todoList {
+            list-style: none;
+        }
+
+        #todoList li {
+            padding: 12px 16px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #333;
+        }
+
+        #todoList li:last-child {
+            border-bottom: none;
+        }
+
+        #todoList.empty {
+            text-align: center;
+            color: #999;
+            padding: 40px 16px;
+            font-size: 14px;
+        }
+
+        #todoList.empty li {
+            border: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>To-Do List</h1>
+
+        <div id="errorMessage"></div>
+
+        <div class="input-group">
+            <input type="text" id="titleInput" placeholder="Adicionar uma nova tarefa...">
+            <button id="addBtn">Adicionar</button>
+        </div>
+
+        <ul id="todoList"></ul>
+    </div>
+
+    <script>
+        const titleInput = document.getElementById('titleInput');
+        const addBtn = document.getElementById('addBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const todoList = document.getElementById('todoList');
+        const STORAGE_KEY = 'todos';
+
+        function getTodos() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function saveTodos(todos) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+        }
+
+        function getNextId() {
+            const todos = getTodos();
+            return todos.length > 0 ? Math.max(...todos.map(t => t.id)) + 1 : 1;
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('visible');
+        }
+
+        function hideError() {
+            errorMessage.textContent = '';
+            errorMessage.classList.remove('visible');
+        }
+
+        function renderTodos() {
+            const todos = getTodos();
+            todoList.innerHTML = '';
+
+            if (todos.length === 0) {
+                todoList.classList.add('empty');
+                const emptyItem = document.createElement('li');
+                emptyItem.textContent = 'Nenhuma tarefa adicionada ainda';
+                todoList.appendChild(emptyItem);
+            } else {
+                todoList.classList.remove('empty');
+                todos.forEach(todo => {
+                    const li = document.createElement('li');
+                    li.textContent = todo.title;
+                    todoList.appendChild(li);
+                });
+            }
+        }
+
+        function addTodo() {
+            const title = titleInput.value.trim();
+
+            if (!title) {
+                showError('Título não pode estar vazio');
+                return;
+            }
+
+            hideError();
+
+            const todos = getTodos();
+            const newTodo = {
+                id: getNextId(),
+                title: title
+            };
+
+            todos.push(newTodo);
+            saveTodos(todos);
+
+            titleInput.value = '';
+            renderTodos();
+        }
+
+        addBtn.addEventListener('click', addTodo);
+
+        titleInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        renderTodos();
+    </script>
+</body>
+</html>
