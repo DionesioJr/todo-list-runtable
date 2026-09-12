@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .error-message {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        .items-list {
+            margin-top: 30px;
+        }
+
+        .items-list h2 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .items-list ul {
+            list-style: none;
+        }
+
+        .items-list li {
+            padding: 12px 16px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            margin-bottom: 10px;
+            border-radius: 2px;
+            color: #333;
+        }
+
+        .empty-state {
+            color: #999;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List</h1>
+
+        <div class="input-group">
+            <input
+                type="text"
+                id="titleInput"
+                placeholder="Digite o título do novo item..."
+                autocomplete="off"
+            >
+            <button id="addButton">Adicionar</button>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <div class="items-list">
+            <h2>Itens</h2>
+            <ul id="itemsList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'todoList';
+        const titleInput = document.getElementById('titleInput');
+        const addButton = document.getElementById('addButton');
+        const errorMessage = document.getElementById('errorMessage');
+        const itemsList = document.getElementById('itemsList');
+
+        function getStoredItems() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function saveItems(items) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        }
+
+        function renderList() {
+            const items = getStoredItems();
+            itemsList.innerHTML = '';
+
+            if (items.length === 0) {
+                itemsList.innerHTML = '<div class="empty-state">Nenhum item adicionado ainda</div>';
+                return;
+            }
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item.title;
+                itemsList.appendChild(li);
+            });
+        }
+
+        function validateTitle(title) {
+            return title && title.trim().length > 0;
+        }
+
+        function clearError() {
+            errorMessage.textContent = '';
+            errorMessage.classList.remove('visible');
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('visible');
+        }
+
+        function addItem() {
+            const title = titleInput.value;
+
+            if (!validateTitle(title)) {
+                showError('Por favor, digite um título para o item');
+                return;
+            }
+
+            clearError();
+
+            const items = getStoredItems();
+            const newItem = {
+                id: Date.now().toString(),
+                title: title.trim()
+            };
+
+            items.push(newItem);
+            saveItems(items);
+
+            titleInput.value = '';
+            renderList();
+            titleInput.focus();
+        }
+
+        addButton.addEventListener('click', addItem);
+
+        titleInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addItem();
+            }
+        });
+
+        titleInput.addEventListener('input', clearError);
+
+        renderList();
+        titleInput.focus();
+    </script>
+</body>
+</html>
