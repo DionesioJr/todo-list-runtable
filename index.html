@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #4CAF50;
+    }
+
+    button {
+      padding: 12px 24px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    button:active {
+      background-color: #3d8b40;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      gap: 12px;
+      transition: background-color 0.2s;
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    li:hover {
+      background-color: #f9f9f9;
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .item-text {
+      flex: 1;
+      word-break: break-word;
+      color: #333;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 40px 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>To-Do List</h1>
+
+    <div class="input-group">
+      <input
+        type="text"
+        id="itemInput"
+        placeholder="Add a new item"
+        autocomplete="off"
+      >
+      <button id="addBtn">Add</button>
+    </div>
+
+    <ul id="itemList"></ul>
+    <div id="emptyState" class="empty-state">No items yet. Add one to get started!</div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'todoItems';
+    const itemInput = document.getElementById('itemInput');
+    const addBtn = document.getElementById('addBtn');
+    const itemList = document.getElementById('itemList');
+    const emptyState = document.getElementById('emptyState');
+
+    let items = [];
+
+    function loadItems() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      items = stored ? JSON.parse(stored) : [];
+    }
+
+    function saveItems() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
+
+    function render() {
+      itemList.innerHTML = '';
+
+      if (items.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+
+      items.forEach((item, index) => {
+        const li = document.createElement('li');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = item.completed || false;
+        checkbox.addEventListener('change', (e) => toggleItem(index, e.target.checked));
+
+        const span = document.createElement('span');
+        span.className = 'item-text';
+        if (item.completed) {
+          span.classList.add('completed');
+        }
+        span.textContent = item.text;
+
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        itemList.appendChild(li);
+      });
+    }
+
+    function addItem() {
+      const text = itemInput.value.trim();
+      if (text === '') return;
+
+      items.push({
+        text: text,
+        completed: false
+      });
+
+      itemInput.value = '';
+      saveItems();
+      render();
+    }
+
+    function toggleItem(index, completed) {
+      items[index].completed = completed;
+      saveItems();
+      render();
+    }
+
+    addBtn.addEventListener('click', addItem);
+
+    itemInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addItem();
+      }
+    });
+
+    loadItems();
+    render();
+  </script>
+</body>
+</html>
