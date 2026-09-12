@@ -137,7 +137,13 @@
 
         function loadTodos() {
             const stored = localStorage.getItem(STORAGE_KEY);
-            return stored ? JSON.parse(stored) : [];
+            if (!stored) return [];
+
+            try {
+                return JSON.parse(stored);
+            } catch {
+                return [];
+            }
         }
 
         function saveTodos(todos) {
