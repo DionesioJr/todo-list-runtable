@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tarefas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 500px;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .counter {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .input-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    .todo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+
+    .todo-item:hover {
+      background: #f0f0f0;
+    }
+
+    .todo-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .todo-text {
+      flex: 1;
+      color: #333;
+      font-size: 16px;
+      word-break: break-word;
+    }
+
+    .todo-text.completed {
+      text-decoration: line-through;
+      opacity: 0.6;
+      color: #999;
+    }
+
+    .delete-btn {
+      padding: 6px 12px;
+      background: #f44336;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .delete-btn:hover {
+      background: #da190b;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 40px 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Minhas Tarefas</h1>
+    <div class="counter">
+      <span id="pending-count">0</span> tarefas pendentes
+    </div>
+
+    <div class="input-container">
+      <input type="text" id="todo-input" placeholder="Adicione uma nova tarefa...">
+      <button id="add-btn">Adicionar</button>
+    </div>
+
+    <div class="todo-list" id="todo-list">
+      <div class="empty-state">Nenhuma tarefa. Comece adicionando uma!</div>
+    </div>
+  </div>
+
+  <script>
+    const todoInput = document.getElementById('todo-input');
+    const addBtn = document.getElementById('add-btn');
+    const todoList = document.getElementById('todo-list');
+    const pendingCount = document.getElementById('pending-count');
+
+    const STORAGE_KEY = 'todoList';
+    let todos = [];
+    let nextId = 0;
+
+    function saveTodos() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+    }
+
+    function loadTodos() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          todos = JSON.parse(stored);
+          if (Array.isArray(todos)) {
+            nextId = todos.length > 0 ? Math.max(...todos.map(t => t.id)) + 1 : 0;
+          } else {
+            todos = [];
+            nextId = 0;
+          }
+        } catch {
+          todos = [];
+          nextId = 0;
+        }
+      }
+    }
+
+    function addTodo() {
+      const text = todoInput.value.trim();
+      if (!text) return;
+
+      const todo = {
+        id: nextId++,
+        text: text,
+        completed: false
+      };
+
+      todos.push(todo);
+      saveTodos();
+      todoInput.value = '';
+      todoInput.focus();
+      render();
+    }
+
+    function toggleTodo(id) {
+      const todo = todos.find(t => t.id === id);
+      if (todo) {
+        todo.completed = !todo.completed;
+        saveTodos();
+        render();
+      }
+    }
+
+    function deleteTodo(id) {
+      todos = todos.filter(t => t.id !== id);
+      saveTodos();
+      render();
+    }
+
+    function updatePendingCount() {
+      const count = todos.filter(t => !t.completed).length;
+      pendingCount.textContent = count;
+    }
+
+    function render() {
+      todoList.innerHTML = '';
+
+      if (todos.length === 0) {
+        todoList.innerHTML = '<div class="empty-state">Nenhuma tarefa. Comece adicionando uma!</div>';
+        updatePendingCount();
+        return;
+      }
+
+      todos.forEach(todo => {
+        const item = document.createElement('div');
+        item.className = 'todo-item';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener('change', () => toggleTodo(todo.id));
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'todo-text';
+        if (todo.completed) textSpan.classList.add('completed');
+        textSpan.textContent = todo.text;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.textContent = 'Deletar';
+        deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
+
+        item.appendChild(checkbox);
+        item.appendChild(textSpan);
+        item.appendChild(deleteBtn);
+        todoList.appendChild(item);
+      });
+
+      updatePendingCount();
+    }
+
+    addBtn.addEventListener('click', addTodo);
+    todoInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addTodo();
+    });
+
+    loadTodos();
+    render();
+  </script>
+</body>
+</html>
