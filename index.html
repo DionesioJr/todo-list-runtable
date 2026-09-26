@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tarefas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 500px;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .counter {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .input-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    .todo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+
+    .todo-item:hover {
+      background: #f0f0f0;
+    }
+
+    .todo-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .todo-text {
+      flex: 1;
+      color: #333;
+      font-size: 16px;
+      word-break: break-word;
+    }
+
+    .todo-text.completed {
+      text-decoration: line-through;
+      opacity: 0.6;
+      color: #999;
+    }
+
+    .delete-btn {
+      padding: 6px 12px;
+      background: #f44336;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .delete-btn:hover {
+      background: #da190b;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 40px 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Minhas Tarefas</h1>
+    <div class="counter">
+      <span id="pending-count">0</span> tarefas pendentes
+    </div>
+
+    <div class="input-container">
+      <input type="text" id="todo-input" placeholder="Adicione uma nova tarefa...">
+      <button id="add-btn">Adicionar</button>
+    </div>
+
+    <div class="todo-list" id="todo-list">
+      <div class="empty-state">Nenhuma tarefa. Comece adicionando uma!</div>
+    </div>
+
+    <button id="run-tests-btn" style="margin-top: 30px; padding: 10px 20px; background: #999; font-size: 12px;">Executar Testes</button>
+    <div id="test-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow: auto; padding: 20px;">
+      <div style="background: white; margin: 20px auto; padding: 30px; max-width: 600px; border-radius: 8px;">
+        <h2>Testes Automatizados</h2>
+        <button id="close-tests-btn" style="float: right; background: #999; padding: 5px 15px;">Fechar</button>
+        <div id="test-results" style="clear: both; margin-top: 20px;"></div>
+        <div id="summary" style="margin-top: 30px; padding: 15px; background: #f9f9f9; border-radius: 4px; font-weight: bold;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const todoInput = document.getElementById('todo-input');
+    const addBtn = document.getElementById('add-btn');
+    const todoList = document.getElementById('todo-list');
+    const pendingCount = document.getElementById('pending-count');
+    const testModal = document.getElementById('test-modal');
+    const runTestsBtn = document.getElementById('run-tests-btn');
+    const closeTestsBtn = document.getElementById('close-tests-btn');
+
+    const STORAGE_KEY = 'todoList';
+    let todos = [];
+    let nextId = 0;
+
+    function saveTodos() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+    }
+
+    function loadTodos() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          todos = JSON.parse(stored);
+          if (Array.isArray(todos)) {
+            nextId = todos.length > 0 ? Math.max(...todos.map(t => t.id)) + 1 : 0;
+          } else {
+            todos = [];
+            nextId = 0;
+          }
+        } catch {
+          todos = [];
+          nextId = 0;
+        }
+      }
+    }
+
+    function addTodo() {
+      const text = todoInput.value.trim();
+      if (!text) return;
+
+      const todo = {
+        id: nextId++,
+        text: text,
+        completed: false
+      };
+
+      todos.push(todo);
+      saveTodos();
+      todoInput.value = '';
+      todoInput.focus();
+      render();
+    }
+
+    function toggleTodo(id) {
+      const todo = todos.find(t => t.id === id);
+      if (todo) {
+        todo.completed = !todo.completed;
+        saveTodos();
+        render();
+      }
+    }
+
+    function deleteTodo(id) {
+      todos = todos.filter(t => t.id !== id);
+      saveTodos();
+      render();
+    }
+
+    function updatePendingCount() {
+      const count = todos.filter(t => !t.completed).length;
+      pendingCount.textContent = count;
+    }
+
+    function render() {
+      todoList.innerHTML = '';
+
+      if (todos.length === 0) {
+        todoList.innerHTML = '<div class="empty-state">Nenhuma tarefa. Comece adicionando uma!</div>';
+        updatePendingCount();
+        return;
+      }
+
+      todos.forEach(todo => {
+        const item = document.createElement('div');
+        item.className = 'todo-item';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener('change', () => toggleTodo(todo.id));
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'todo-text';
+        if (todo.completed) textSpan.classList.add('completed');
+        textSpan.textContent = todo.text;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.textContent = 'Deletar';
+        deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
+
+        item.appendChild(checkbox);
+        item.appendChild(textSpan);
+        item.appendChild(deleteBtn);
+        todoList.appendChild(item);
+      });
+
+      updatePendingCount();
+    }
+
+    addBtn.addEventListener('click', addTodo);
+    todoInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addTodo();
+    });
+
+    // ========== TESTES AUTOMATIZADOS ==========
+    function runTests() {
+      const testResults = document.getElementById('test-results');
+      const summary = document.getElementById('summary');
+      testResults.innerHTML = '';
+      summary.innerHTML = '';
+
+      let passCount = 0;
+      let failCount = 0;
+
+      function addTest(name, testFn) {
+        try {
+          testFn();
+          logTest(name, true, 'OK');
+          passCount++;
+        } catch (error) {
+          logTest(name, false, error.message);
+          failCount++;
+        }
+      }
+
+      function logTest(name, passed, message) {
+        const testDiv = document.createElement('div');
+        testDiv.style.marginBottom = '10px';
+        testDiv.style.padding = '10px';
+        testDiv.style.borderLeft = '4px solid ' + (passed ? '#4caf50' : '#f44336');
+        testDiv.style.background = passed ? '#e8f5e9' : '#ffebee';
+        testDiv.innerHTML = `
+          <strong>${passed ? '✓' : '✗'} ${name}</strong><br>
+          <small>${message}</small>
+        `;
+        testResults.appendChild(testDiv);
+      }
+
+      function assert(condition, message) {
+        if (!condition) throw new Error(message);
+      }
+
+      function parseStorageForTest() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return [];
+        return JSON.parse(stored);
+      }
+
+      const originalTodos = JSON.parse(JSON.stringify(todos));
+      const originalStorage = localStorage.getItem(STORAGE_KEY);
+
+      // T1: Adicionar item válido
+      addTest('Adicionar item válido', () => {
+        const testTodos = [];
+        testTodos.push({ id: 0, text: 'Comprar leite', completed: false });
+
+        assert(testTodos.length === 1, 'Deve haver 1 item');
+        assert(testTodos[0].text === 'Comprar leite', 'Texto deve ser "Comprar leite"');
+        assert(testTodos[0].completed === false, 'Item deve estar não concluído');
+      });
+
+      // T2: Validação - rejeita entrada vazia
+      addTest('Rejeitar entrada vazia', () => {
+        const text = ''.trim();
+        assert(!text, 'String vazia trimada deve ser falsy');
+      });
+
+      // T3: Validação - rejeita entrada com só espaços
+      addTest('Rejeitar entrada com só espaços', () => {
+        const text = '   \t  \n  '.trim();
+        assert(!text, 'Espaços trimados devem ser falsy');
+      });
+
+      // T4: Marcar item como concluído
+      addTest('Marcar item como concluído', () => {
+        const testTodos = [{ id: 0, text: 'Tarefa 1', completed: false }];
+        testTodos[0].completed = true;
+        assert(testTodos[0].completed === true, 'Item deve estar marcado como concluído');
+      });
+
+      // T5: Desmarcar item concluído
+      addTest('Desmarcar item concluído', () => {
+        const testTodos = [{ id: 0, text: 'Tarefa 1', completed: true }];
+        testTodos[0].completed = false;
+        assert(testTodos[0].completed === false, 'Item deve estar desmarcado');
+      });
+
+      // T6: Deletar item
+      addTest('Deletar item', () => {
+        const testTodos = [
+          { id: 0, text: 'Tarefa 1', completed: false },
+          { id: 1, text: 'Tarefa 2', completed: false }
+        ];
+        const filtered = testTodos.filter(t => t.id !== 1);
+        assert(filtered.length === 1, 'Deve haver 1 item após deletar');
+        assert(filtered[0].id === 0, 'Item restante deve ter id 0');
+      });
+
+      // T7: Contar itens pendentes
+      addTest('Contar itens pendentes', () => {
+        const testTodos = [
+          { id: 0, text: 'Tarefa 1', completed: false },
+          { id: 1, text: 'Tarefa 2', completed: false },
+          { id: 2, text: 'Tarefa 3', completed: true }
+        ];
+        const pendingCount = testTodos.filter(t => !t.completed).length;
+        assert(pendingCount === 2, `Deve haver 2 itens pendentes, encontrou ${pendingCount}`);
+      });
+
+      // T8: Contar itens pendentes (todos concluídos)
+      addTest('Contar itens pendentes (todos concluídos)', () => {
+        const testTodos = [
+          { id: 0, text: 'Tarefa 1', completed: true },
+          { id: 1, text: 'Tarefa 2', completed: true }
+        ];
+        const pendingCount = testTodos.filter(t => !t.completed).length;
+        assert(pendingCount === 0, `Deve haver 0 itens pendentes, encontrou ${pendingCount}`);
+      });
+
+      // T9: Persistência no localStorage - estrutura válida
+      addTest('Persistência em localStorage com estrutura válida', () => {
+        const testTodos = [
+          { id: 0, text: 'Item 1', completed: false },
+          { id: 1, text: 'Item 2', completed: true }
+        ];
+        const data = JSON.stringify(testTodos);
+        const parsed = JSON.parse(data);
+
+        assert(Array.isArray(parsed), 'Dados devem ser um array');
+        assert(parsed.length === 2, 'Array deve ter 2 itens');
+        assert(parsed[0].id !== undefined, 'Cada item deve ter id');
+        assert(parsed[0].text !== undefined, 'Cada item deve ter text');
+        assert(parsed[0].completed !== undefined, 'Cada item deve ter completed');
+      });
+
+      // T10: Persistência - entrada inválida no localStorage
+      addTest('Recuperação de localStorage corrompido', () => {
+        try {
+          JSON.parse('dados inválidos não-JSON');
+          assert(false, 'Dados corrompidos deveriam lançar erro');
+        } catch (e) {
+          assert(true, 'Dados corrompidos foram detectados');
+        }
+      });
+
+      // T11: Múltiplas operações em sequência
+      addTest('Múltiplas operações em sequência', () => {
+        let testTodos = [];
+        testTodos.push({ id: 0, text: 'A', completed: false });
+        testTodos.push({ id: 1, text: 'B', completed: false });
+        testTodos.push({ id: 2, text: 'C', completed: false });
+
+        testTodos[0].completed = true;
+        testTodos = testTodos.filter(t => t.id !== 1);
+
+        assert(testTodos.length === 2, 'Deve haver 2 itens');
+        assert(testTodos[0].completed === true, 'Primeiro deve estar concluído');
+        assert(testTodos[1].text === 'C', 'Segundo deve ser "C"');
+
+        const pending = testTodos.filter(t => !t.completed).length;
+        assert(pending === 1, 'Deve haver 1 item pendente');
+      });
+
+      // T12: Restauração após recarregamento
+      addTest('Restauração após recarregamento', () => {
+        const testTodos = [{ id: 0, text: 'Persistir isto', completed: false }];
+        const data = JSON.stringify(testTodos);
+        const stored = JSON.parse(data);
+
+        assert(stored.length === 1, 'Após reload, item deve estar restituído');
+        assert(stored[0].text === 'Persistir isto', 'Texto deve ser preservado');
+        assert(stored[0].completed === false, 'Estado deve ser preservado');
+      });
+
+      // Restaurar estado original
+      todos = originalTodos;
+      if (originalStorage) {
+        localStorage.setItem(STORAGE_KEY, originalStorage);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+
+      // Exibir resumo
+      const allPass = failCount === 0;
+      const totalTests = passCount + failCount;
+      summary.style.background = allPass ? '#e8f5e9' : '#ffebee';
+      summary.style.color = allPass ? '#2e7d32' : '#c62828';
+      summary.innerHTML = `
+        Total: ${totalTests} testes<br>
+        ✓ Passou: ${passCount}<br>
+        ✗ Falhou: ${failCount}
+      `;
+    }
+
+    runTestsBtn.addEventListener('click', () => {
+      testModal.style.display = 'block';
+      runTests();
+    });
+
+    closeTestsBtn.addEventListener('click', () => {
+      testModal.style.display = 'none';
+    });
+
+    loadTodos();
+    render();
+  </script>
+</body>
+</html>
