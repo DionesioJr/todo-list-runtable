@@ -131,6 +131,15 @@
             background-color: #ff5252;
         }
 
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        button:disabled:hover {
+            background-color: #ccc;
+        }
+
         .empty-state {
             text-align: center;
             color: #999;
@@ -152,6 +161,7 @@
                 aria-label="Campo para nova tarefa"
             >
             <button id="addBtn" aria-label="Adicionar tarefa">Adicionar</button>
+            <button id="clearBtn" aria-label="Limpar tarefas concluídas">Limpar concluídos</button>
         </div>
 
         <ul class="todo-list" id="todoList"></ul>
@@ -162,6 +172,7 @@
         const STORAGE_KEY = 'todoList';
         const todoInput = document.getElementById('todoInput');
         const addBtn = document.getElementById('addBtn');
+        const clearBtn = document.getElementById('clearBtn');
         const todoListEl = document.getElementById('todoList');
         const counterEl = document.getElementById('counter');
         const emptyState = document.getElementById('emptyState');
@@ -193,6 +204,18 @@
             counterEl.textContent = `${remaining} tarefa${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}`;
         }
 
+        function updateClearBtn() {
+            const hasCompleted = todos.some(t => t.completed);
+            clearBtn.disabled = !hasCompleted;
+        }
+
+        function clearCompleted() {
+            todos = todos.filter(t => !t.completed);
+            saveTodos();
+            renderTodos();
+            updateClearBtn();
+        }
+
         function toggleEmptyState() {
             if (todos.length === 0) {
                 emptyState.style.display = 'block';
@@ -222,6 +245,7 @@
             });
             updateCounter();
             toggleEmptyState();
+            updateClearBtn();
         }
 
         function escapeHtml(text) {
@@ -266,6 +290,7 @@
         }
 
         addBtn.addEventListener('click', addTodo);
+        clearBtn.addEventListener('click', clearCompleted);
         todoInput.addEventListener('keypress', e => {
             if (e.key === 'Enter') {
                 addTodo();
