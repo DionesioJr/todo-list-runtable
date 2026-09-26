@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .counter {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #5568d3;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .todo-list {
+            list-style: none;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .todo-item:hover {
+            background-color: #f0f1f3;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .todo-text {
+            flex: 1;
+            color: #333;
+            word-break: break-word;
+            font-size: 15px;
+        }
+
+        .delete-btn {
+            background-color: #ff6b6b;
+            padding: 6px 12px;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .delete-btn:hover {
+            background-color: #ff5252;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Minhas Tarefas</h1>
+        <div class="counter" id="counter">0 tarefas restantes</div>
+
+        <div class="input-group">
+            <input
+                type="text"
+                id="todoInput"
+                placeholder="Digite uma nova tarefa..."
+                aria-label="Campo para nova tarefa"
+            >
+            <button id="addBtn" aria-label="Adicionar tarefa">Adicionar</button>
+        </div>
+
+        <ul class="todo-list" id="todoList"></ul>
+        <div class="empty-state" id="emptyState">Nenhuma tarefa ainda. Adicione uma acima!</div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'todoList';
+        const todoInput = document.getElementById('todoInput');
+        const addBtn = document.getElementById('addBtn');
+        const todoListEl = document.getElementById('todoList');
+        const counterEl = document.getElementById('counter');
+        const emptyState = document.getElementById('emptyState');
+
+        let todos = [];
+        let nextId = 1;
+
+        function loadTodos() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    todos = JSON.parse(stored);
+                    if (Array.isArray(todos) && todos.length > 0) {
+                        nextId = Math.max(...todos.map(t => t.id || 0)) + 1;
+                    }
+                } catch (e) {
+                    todos = [];
+                    nextId = 1;
+                }
+            }
+        }
+
+        function saveTodos() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+        }
+
+        function updateCounter() {
+            const remaining = todos.filter(t => !t.completed).length;
+            counterEl.textContent = `${remaining} tarefa${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}`;
+        }
+
+        function toggleEmptyState() {
+            if (todos.length === 0) {
+                emptyState.style.display = 'block';
+                todoListEl.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                todoListEl.style.display = 'block';
+            }
+        }
+
+        function renderTodos() {
+            todoListEl.innerHTML = '';
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <input
+                        type="checkbox"
+                        ${todo.completed ? 'checked' : ''}
+                        aria-label="Marcar como concluído"
+                        onchange="toggleTodo(${todo.id})"
+                    >
+                    <span class="todo-text">${escapeHtml(todo.text)}</span>
+                    <button class="delete-btn" onclick="deleteTodo(${todo.id})">Apagar</button>
+                `;
+                todoListEl.appendChild(li);
+            });
+            updateCounter();
+            toggleEmptyState();
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function addTodo() {
+            const text = todoInput.value.trim();
+            if (!text) {
+                return;
+            }
+            todos.push({
+                id: nextId++,
+                text: text,
+                completed: false
+            });
+            todoInput.value = '';
+            saveTodos();
+            renderTodos();
+        }
+
+        function toggleTodo(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                saveTodos();
+                renderTodos();
+            }
+        }
+
+        function deleteTodo(id) {
+            todos = todos.filter(t => t.id !== id);
+            saveTodos();
+            renderTodos();
+        }
+
+        addBtn.addEventListener('click', addTodo);
+        todoInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+
+        loadTodos();
+        renderTodos();
+    </script>
+</body>
+</html>
