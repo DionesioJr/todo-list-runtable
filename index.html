@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .stats {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+
+        .task-item:hover {
+            background: #f0f0f0;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .task-text {
+            flex: 1;
+            color: #333;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-remove {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            margin-left: 8px;
+        }
+
+        .task-remove:hover {
+            background: #ff5252;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Minhas Tarefas</h1>
+        <div class="stats">
+            <span id="pending-count">0</span> tarefa(s) pendente(s)
+        </div>
+
+        <div class="input-group">
+            <input
+                type="text"
+                id="task-input"
+                placeholder="Adicione uma nova tarefa..."
+                maxlength="200"
+            >
+            <button id="add-btn">Adicionar</button>
+        </div>
+
+        <ul id="task-list" class="task-list"></ul>
+        <div id="empty-state" class="empty-state">Nenhuma tarefa ainda. Adicione uma para começar!</div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'tarefas';
+
+        let tasks = [];
+        let nextId = 1;
+
+        const taskInput = document.getElementById('task-input');
+        const addBtn = document.getElementById('add-btn');
+        const taskList = document.getElementById('task-list');
+        const pendingCount = document.getElementById('pending-count');
+        const emptyState = document.getElementById('empty-state');
+
+        function loadTasks() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    tasks = JSON.parse(stored);
+                    if (Array.isArray(tasks) && tasks.length > 0) {
+                        nextId = Math.max(...tasks.map(t => t.id || 0)) + 1;
+                    }
+                } catch (e) {
+                    tasks = [];
+                    nextId = 1;
+                }
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        }
+
+        function validateTask(text) {
+            if (!text) return false;
+            if (text.trim() === '') return false;
+            if (text.length > 200) return false;
+            return true;
+        }
+
+        function addTask() {
+            const text = taskInput.value;
+
+            if (!validateTask(text)) {
+                return;
+            }
+
+            const task = {
+                id: nextId++,
+                texto: text,
+                concluído: false
+            };
+
+            tasks.push(task);
+            saveTasks();
+            taskInput.value = '';
+            render();
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.concluído = !task.concluído;
+                saveTasks();
+                render();
+            }
+        }
+
+        function removeTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            render();
+        }
+
+        function getPendingCount() {
+            return tasks.filter(t => !t.concluído).length;
+        }
+
+        function render() {
+            taskList.innerHTML = '';
+
+            if (tasks.length === 0) {
+                emptyState.style.display = 'block';
+                pendingCount.textContent = '0';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'task-item' + (task.concluído ? ' completed' : '');
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'task-checkbox';
+                checkbox.checked = task.concluído;
+                checkbox.addEventListener('change', () => toggleTask(task.id));
+
+                const span = document.createElement('span');
+                span.className = 'task-text';
+                span.textContent = task.texto;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'task-remove';
+                removeBtn.textContent = '×';
+                removeBtn.addEventListener('click', () => removeTask(task.id));
+
+                li.appendChild(checkbox);
+                li.appendChild(span);
+                li.appendChild(removeBtn);
+                taskList.appendChild(li);
+            });
+
+            pendingCount.textContent = getPendingCount();
+        }
+
+        addBtn.addEventListener('click', addTask);
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        loadTasks();
+        render();
+    </script>
+</body>
+</html>
