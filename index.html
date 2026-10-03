@@ -325,6 +325,56 @@
             render();
         }
 
+        function editTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            const span = document.querySelector(`.task-text[data-id="${id}"]`);
+            if (!span) return;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = task.texto;
+            input.maxLength = '200';
+            input.style.flex = '1';
+            input.style.padding = '12px';
+            input.style.border = '1px solid #ddd';
+            input.style.borderRadius = '4px';
+            input.style.fontSize = '14px';
+            input.style.transition = 'border-color 0.2s';
+            input.style.fontFamily = 'inherit';
+
+            const parent = span.parentElement;
+            parent.replaceChild(input, span);
+            input.focus();
+            input.select();
+
+            function saveEdit() {
+                const newText = input.value;
+                if (validateTask(newText)) {
+                    task.texto = newText;
+                    saveTasks();
+                }
+                render();
+            }
+
+            function cancelEdit() {
+                render();
+            }
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveEdit();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelEdit();
+                }
+            });
+
+            input.addEventListener('blur', cancelEdit);
+        }
+
         function render() {
             taskList.innerHTML = '';
 
@@ -355,6 +405,8 @@
                 const span = document.createElement('span');
                 span.className = 'task-text';
                 span.textContent = task.texto;
+                span.dataset.id = task.id;
+                span.addEventListener('dblclick', () => editTask(task.id));
 
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'task-remove';
