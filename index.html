@@ -94,6 +94,39 @@
             background: #e68900;
         }
 
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 10px 16px;
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #e8e8e8;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn.active:hover {
+            background: #5568d3;
+        }
+
         .task-list {
             list-style: none;
         }
@@ -180,6 +213,12 @@
 
         <button id="clear-completed-btn" class="clear-completed-btn">Limpar concluídas</button>
 
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="pending">Pendentes</button>
+            <button class="filter-btn" data-filter="completed">Concluídos</button>
+        </div>
+
         <ul id="task-list" class="task-list"></ul>
         <div id="empty-state" class="empty-state">Nenhuma tarefa ainda. Adicione uma para começar!</div>
     </div>
@@ -189,6 +228,7 @@
 
         let tasks = [];
         let nextId = 1;
+        let currentFilter = 'all';
 
         const taskInput = document.getElementById('task-input');
         const addBtn = document.getElementById('add-btn');
@@ -196,6 +236,7 @@
         const pendingCount = document.getElementById('pending-count');
         const emptyState = document.getElementById('empty-state');
         const clearCompletedBtn = document.getElementById('clear-completed-btn');
+        const filterBtns = document.querySelectorAll('.filter-btn');
 
         function loadTasks() {
             const stored = localStorage.getItem(STORAGE_KEY);
@@ -267,8 +308,27 @@
             return tasks.filter(t => !t.concluído).length;
         }
 
+        function getFilteredTasks() {
+            if (currentFilter === 'pending') {
+                return tasks.filter(t => !t.concluído);
+            } else if (currentFilter === 'completed') {
+                return tasks.filter(t => t.concluído);
+            }
+            return tasks;
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            filterBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            render();
+        }
+
         function render() {
             taskList.innerHTML = '';
+
+            const filteredTasks = getFilteredTasks();
 
             if (tasks.length === 0) {
                 emptyState.style.display = 'block';
@@ -276,9 +336,13 @@
                 return;
             }
 
-            emptyState.style.display = 'none';
+            if (filteredTasks.length === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+            }
 
-            tasks.forEach(task => {
+            filteredTasks.forEach(task => {
                 const li = document.createElement('li');
                 li.className = 'task-item' + (task.concluído ? ' completed' : '');
 
@@ -312,6 +376,12 @@
             if (e.key === 'Enter') {
                 addTask();
             }
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                setFilter(btn.dataset.filter);
+            });
         });
 
         loadTasks();
