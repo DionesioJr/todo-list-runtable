@@ -84,6 +84,16 @@
             transform: scale(0.98);
         }
 
+        .clear-completed-btn {
+            width: 100%;
+            margin-bottom: 20px;
+            background: #ff9100;
+        }
+
+        .clear-completed-btn:hover {
+            background: #e68900;
+        }
+
         .task-list {
             list-style: none;
         }
@@ -168,6 +178,8 @@
             <button id="add-btn">Adicionar</button>
         </div>
 
+        <button id="clear-completed-btn" class="clear-completed-btn">Limpar concluídas</button>
+
         <ul id="task-list" class="task-list"></ul>
         <div id="empty-state" class="empty-state">Nenhuma tarefa ainda. Adicione uma para começar!</div>
     </div>
@@ -183,6 +195,7 @@
         const taskList = document.getElementById('task-list');
         const pendingCount = document.getElementById('pending-count');
         const emptyState = document.getElementById('empty-state');
+        const clearCompletedBtn = document.getElementById('clear-completed-btn');
 
         function loadTasks() {
             const stored = localStorage.getItem(STORAGE_KEY);
@@ -244,6 +257,12 @@
             render();
         }
 
+        function clearCompletedTasks() {
+            tasks = tasks.filter(t => !t.concluído);
+            saveTasks();
+            render();
+        }
+
         function getPendingCount() {
             return tasks.filter(t => !t.concluído).length;
         }
@@ -288,6 +307,7 @@
         }
 
         addBtn.addEventListener('click', addTask);
+        clearCompletedBtn.addEventListener('click', clearCompletedTasks);
         taskInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 addTask();
