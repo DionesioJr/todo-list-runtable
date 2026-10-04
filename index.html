@@ -209,6 +209,29 @@
         .filter-btn.active:hover {
             background: #5568d3;
         }
+
+        .task-text-input {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: inherit;
+            color: #333;
+        }
+
+        .task-text-input:focus {
+            outline: none;
+            border-color: #5568d3;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .task-item.editing input[type="checkbox"],
+        .task-item.editing .delete-btn {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -316,6 +339,63 @@
             render();
         }
 
+        function editTask(id, newText) {
+            const trimmed = newText.trim();
+            if (!trimmed) return false;
+
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.text = trimmed;
+                saveTasks();
+                render();
+                return true;
+            }
+            return false;
+        }
+
+        function enterEditMode(li, taskId, originalText) {
+            li.classList.add('editing');
+
+            const span = li.querySelector('.task-text');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'task-text-input';
+            input.value = originalText;
+
+            li.replaceChild(input, span);
+
+            input.focus();
+            input.select();
+
+            function exitEditMode(save = false) {
+                if (save && input.value.trim()) {
+                    editTask(taskId, input.value);
+                } else {
+                    render();
+                }
+            }
+
+            function handleKeydown(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    exitEditMode(true);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    exitEditMode(false);
+                }
+            }
+
+            function handleClickOutside(e) {
+                if (!li.contains(e.target)) {
+                    exitEditMode(false);
+                    document.removeEventListener('click', handleClickOutside);
+                }
+            }
+
+            input.addEventListener('keydown', handleKeydown);
+            document.addEventListener('click', handleClickOutside);
+        }
+
         function countPending() {
             return tasks.filter(t => !t.completed).length;
         }
@@ -398,6 +478,9 @@
                     span.classList.add('completed');
                 }
                 span.textContent = task.text;
+                span.addEventListener('dblclick', () => {
+                    enterEditMode(li, task.id, task.text);
+                });
 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-btn';
