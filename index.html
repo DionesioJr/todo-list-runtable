@@ -148,6 +148,34 @@
             padding: 20px;
             font-size: 14px;
         }
+
+        #clearCompletedBtn {
+            width: 100%;
+            padding: 12px 24px;
+            background: #ff9500;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        #clearCompletedBtn:hover:not(:disabled) {
+            background: #e68900;
+        }
+
+        #clearCompletedBtn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        #clearCompletedBtn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body>
@@ -167,6 +195,8 @@
         <ul id="taskList"></ul>
 
         <div id="emptyMessage" class="empty-message"></div>
+
+        <button id="clearCompletedBtn" disabled>Limpar concluídos</button>
 
         <div class="pending-info" id="pendingInfo">0 tarefa(s) pendente(s)</div>
     </div>
@@ -250,6 +280,21 @@
             return tasks.filter(t => !t.completed).length;
         }
 
+        function countCompleted() {
+            return tasks.filter(t => t.completed).length;
+        }
+
+        function clearCompleted() {
+            tasks = tasks.filter(t => !t.completed);
+            saveTasks();
+            render();
+        }
+
+        function updateClearButton() {
+            const btn = document.getElementById('clearCompletedBtn');
+            btn.disabled = countCompleted() === 0;
+        }
+
         function render() {
             const listEl = document.getElementById('taskList');
             const emptyEl = document.getElementById('emptyMessage');
@@ -260,6 +305,7 @@
             if (tasks.length === 0) {
                 emptyEl.textContent = 'Nenhuma tarefa ainda. Adicione uma!';
                 pendingEl.textContent = '0 tarefa(s) pendente(s)';
+                updateClearButton();
                 return;
             }
 
@@ -294,6 +340,7 @@
 
             const pending = countPending();
             pendingEl.textContent = `${pending} tarefa(s) pendente(s)`;
+            updateClearButton();
         }
 
         // Event listeners
@@ -305,6 +352,10 @@
             if (e.key === 'Enter') {
                 addTask(e.target.value);
             }
+        });
+
+        document.getElementById('clearCompletedBtn').addEventListener('click', () => {
+            clearCompleted();
         });
 
         // Inicializar
